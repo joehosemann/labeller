@@ -24,12 +24,12 @@ enum PinAssignments
   analogLabelSensorPin = A0, // sensor that detects new label
   motorStepPin = 12, // motor Step Pin
   motorDirPin = 13, // motor Direction Pin
-  motorEnablePin = 11, // motor Enable Pin
-  pedalPin = 10 // pin for pedal switch
+  motorEnablePin = 9, // motor Enable Pin
+  pedalPin = 8 // pin for pedal switch
 };
 
-int motorSpeed = 800;
-int motorAccel = 800;
+int motorSpeed = 550;
+int motorAccel = 500;
 // Storage address of stepper/sensor offset
 int sensorStorageAddress = 0;
 int stepsToNextLabel = 0;
@@ -44,14 +44,29 @@ void setup()
 {
   Serial.begin(9600); // Serial Output
   pinMode(pedalPin, INPUT);
+
+  pinMode(A0, OUTPUT);
+
+
+  pinMode(A1, OUTPUT);
+  digitalWrite(A1, LOW);
+  pinMode(A2, OUTPUT);
+  digitalWrite(A2, LOW);
+pinMode(A3, OUTPUT);
+digitalWrite(A4, LOW);
+pinMode(A4, OUTPUT);
+digitalWrite(A4, LOW);
+pinMode(A5, OUTPUT);
+digitalWrite(A5, LOW);
   // Initial setup
   myGLCD.InitLCD();
   myTouch.InitTouch();
   myTouch.setPrecision(PREC_MEDIUM);
   resetScreen();
+  //stepper.setEnablePin(motorEnablePin);
   stepper.setMaxSpeed(motorSpeed);
   stepper.setAcceleration(motorAccel);
-  digitalWrite(motorEnablePin, LOW);
+  stepper.disableOutputs();
 }
 
 void resetScreen()
@@ -95,17 +110,30 @@ void loop()
 // / Returns true when complete
 void moveToNextLabel()
 {
-  // stepper.enableOutputs();
-  int voltage = analogRead(analogLabelSensorPin);
-  // float voltage = sensorValue;
-  stepper.moveTo(600);
-  while (stepper.currentPosition() < 30 && analogRead(analogLabelSensorPin) < 500)
-  // Full speed up to 30
-  stepper.run();
-  stepper.stop(); // Stop as fast as possible: sets new target
-  stepper.moveTo(recallValue(0)); // Recalls the offset between the sensor and the start of the next label.
+  int val = 0;
+  stepsToNextLabel = recallValue(0);
+
+  stepper.setCurrentPosition(0);
+  stepper.enableOutputs();
+  stepper.moveTo(-10);  
   stepper.runToPosition();
-  // stepper.disableOutputs();
+
+  stepper.moveTo(-50000);
+  while (val < 7)
+  {
+    stepper.run();
+    val = analogRead(A0);
+  }
+
+  stepper.stop(); // Stop as fast as possible: sets new target  
+stepper.setCurrentPosition(0);
+  stepper.moveTo(stepsToNextLabel*-1); // Recalls the offset between the sensor and the start of the next label.
+  while (stepper.currentPosition() != stepsToNextLabel*-1)
+    stepper.run();
+  stepper.stop();
+  stepper.runToPosition();
+
+  stepper.disableOutputs();
 }
 
 void storeValue(int pin, int value)
@@ -118,17 +146,27 @@ int recallValue(int pin)
   return EEPROM.read(pin);
 }
 
-/*void doMotor(int steps, String direction)
+void doMotor(int steps, String direction)
 {
-stepper.disableOutputs();
+  int _steps = steps;
+  int _check = _steps - 100;
+
+if (direction == "forward")
+  {
+    _steps = _steps * -1;
+    _check = _steps + 100;
+  }
+
+stepper.enableOutputs();
 stepper.setCurrentPosition(0);
 stepper.moveTo(_steps);
 while (stepper.currentPosition() != _check) // Full speed up to 300
 stepper.run();
 stepper.stop(); // Stop as fast as possible: sets new target
 stepper.runToPosition();
-stepper.enableOutputs();
-}*/
+stepper.disableOutputs();
+}
+
 void drawHomeScreen()
 {
   Serial.println("drawHomeScreen");
@@ -160,8 +198,30 @@ void drawHomeScreen()
 
 void loopHomeScreen()
 {
+  boolean OK = false;
+  int sensorValue;
+  float voltage;
+  String str;
+  myGLCD.setColor(0, 255, 0);
   while (true)
   {
+    sensorValue = analogRead(analogLabelSensorPin);
+    voltage = sensorValue;
+
+    //Serial.println(voltage);
+
+    if (voltage == 0) {}
+    else if ((voltage < 7) && (str != "LABEL"))
+    {
+      str = "LABEL   ";
+      myGLCD.print(str, LEFT, 224);
+    }
+    else if ((voltage >= 7) && (str != "NO LABEL"))
+      {
+        str = "NO LABEL";
+        myGLCD.print(str, LEFT, 224);
+      }
+
     if (myTouch.dataAvailable())
     {
       myTouch.read();
@@ -176,12 +236,12 @@ void loopHomeScreen()
       // Fwd
       if ((y >= 34) && (y <= 81) && (x >= 154) && (x < 298))
       {
-        waitForIt(154, 34, 298, 81);
+        motorWaitForIt(50000, 154, 34, 298, 81);
       }
       // Rev
       if ((y >= 100) && (y <= 146) && (x >= 154) && (x < 298))
       {
-        waitForIt(154, 100, 298, 146);
+        motorWaitForIt(-50000, 154, 100, 298, 146);
       }
       // Delay
       if ((y >= 166) && (y <= 212) && (x >= 154) && (x < 298))
@@ -267,15 +327,32 @@ void waitForIt(int x1, int y1, int x2, int y2)
   myGLCD.drawRoundRect(x1, y1, x2, y2);
 }
 
+// Draw a red frame while a button is touched
+void motorWaitForIt(int steps, int x1, int y1, int x2, int y2)
+{
+  //stepper.enableOutputs();
+  myGLCD.setColor(255, 0, 0);
+  myGLCD.drawRoundRect(x1, y1, x2, y2);
+    stepper.setCurrentPosition(0);
+    stepper.moveTo(steps);
+  while (myTouch.dataAvailable())
+  {
+    myTouch.read();
+    stepper.run();
+  }
+  stepper.stop();
+  stepper.setCurrentPosition(0);
+  myGLCD.setColor(255, 255, 255);
+  myGLCD.drawRoundRect(x1, y1, x2, y2);
+  //stepper.disableOutputs();
+}
+
 void loopDisplayNumPad()
 {
-  int val;
-  val = recallValue(0);
-  String tempVal = String(val);
-
+  stepsToNextLabel = recallValue(0);
+  String tempVal = String(stepsToNextLabel);
   myGLCD.setColor(0, 255, 0);
   myGLCD.print(tempVal, LEFT, 224);
-
   while (true)
   {
     if (myTouch.dataAvailable())
@@ -377,12 +454,7 @@ void loopDisplayNumPad()
             myGLCD.fillRect(0, 208, 319, 239);
             myGLCD.setColor(0, 255, 0);
             myGLCD.print(stLast, LEFT, 208);
-
-            val = atoi(stLast);
-
-            Serial.print("val: ");
-            Serial.println(val);
-
+            int val = atoi(stLast);
             storeValue(0, val);
           }
           else
@@ -406,3 +478,4 @@ void loopDisplayNumPad()
     }
   }
 }
+
