@@ -5,12 +5,6 @@ VisualStudioVersion = 15.0.27703.2042
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Labeller", "Labeller.vcxproj", "{C5F80730-F44F-4478-BDAE-6634EFC2CA88}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DM542T with Nema 23 Test", "..\DM542T with Nema 23 Test\DM542T with Nema 23 Test.vcxproj", "{E568B6E4-CECB-46A3-9417-8B440C1F5251}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Button Test", "..\Button Test\Button Test.vcxproj", "{AAF99A27-8D03-4293-B9E6-4F4FF783CCCC}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "deleteme", "..\deleteme\deleteme.vcxproj", "{13643134-176E-4437-9188-6BAF711F4BE8}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -21,18 +15,6 @@ Global
 		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Debug|x86.Build.0 = Debug|Win32
 		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Release|x86.ActiveCfg = Release|Win32
 		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Release|x86.Build.0 = Release|Win32
-		{E568B6E4-CECB-46A3-9417-8B440C1F5251}.Debug|x86.ActiveCfg = Debug|Win32
-		{E568B6E4-CECB-46A3-9417-8B440C1F5251}.Debug|x86.Build.0 = Debug|Win32
-		{E568B6E4-CECB-46A3-9417-8B440C1F5251}.Release|x86.ActiveCfg = Release|Win32
-		{E568B6E4-CECB-46A3-9417-8B440C1F5251}.Release|x86.Build.0 = Release|Win32
-		{AAF99A27-8D03-4293-B9E6-4F4FF783CCCC}.Debug|x86.ActiveCfg = Debug|Win32
-		{AAF99A27-8D03-4293-B9E6-4F4FF783CCCC}.Debug|x86.Build.0 = Debug|Win32
-		{AAF99A27-8D03-4293-B9E6-4F4FF783CCCC}.Release|x86.ActiveCfg = Release|Win32
-		{AAF99A27-8D03-4293-B9E6-4F4FF783CCCC}.Release|x86.Build.0 = Release|Win32
-		{13643134-176E-4437-9188-6BAF711F4BE8}.Debug|x86.ActiveCfg = Debug|Win32
-		{13643134-176E-4437-9188-6BAF711F4BE8}.Debug|x86.Build.0 = Debug|Win32
-		{13643134-176E-4437-9188-6BAF711F4BE8}.Release|x86.ActiveCfg = Release|Win32
-		{13643134-176E-4437-9188-6BAF711F4BE8}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
